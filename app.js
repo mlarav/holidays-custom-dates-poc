@@ -146,6 +146,14 @@
     return new Intl.DateTimeFormat(undefined, { month: "long", day: "numeric" }).format(parsed);
   }
 
+  function formatDateLocalizedWithYear(isoDate) {
+    if (!isValidDateFormat(isoDate)) {
+      return isoDate || "";
+    }
+    var parsed = new Date(isoDate + "T00:00:00");
+    return new Intl.DateTimeFormat(undefined, { month: "long", day: "numeric", year: "numeric" }).format(parsed);
+  }
+
   function formatTimeLocalized(timeValue) {
     if (!/^\d{2}:\d{2}$/.test(timeValue || "")) {
       return timeValue || "";
@@ -690,7 +698,7 @@
         var closeHint = effective.closedAt ? '<div class="time-hint">' + escapeHtml(formatTimeLocalized(effective.closedAt)) + "</div>" : "";
         return [
           "<tr>",
-          "<td>" + escapeHtml(formatDateLocalized(effective.date)) + "</td>",
+          "<td>" + escapeHtml(formatDateLocalizedWithYear(effective.date)) + "</td>",
           "<td>" + escapeHtml(effective.name) + "</td>",
           "<td>" + typeLabel + "</td>",
           '<td><input data-edit-field="closed" data-item-id="' + escapeHtml(item.id) + '" type="checkbox" ' + (effective.closed ? "checked" : "") + "></td>",
