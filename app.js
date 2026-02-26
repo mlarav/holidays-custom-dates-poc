@@ -27,6 +27,7 @@
       addError: null,
       suggestedHolidays: [],
       selectedHolidayIds: {},
+      selectedHolidaysByKey: {},
       stagedCustomDates: [],
       pendingErrors: [],
       tableDirty: false,
@@ -480,8 +481,8 @@
   }
 
   function getSelectedHolidays() {
-    return state.ui.suggestedHolidays.filter(function (holiday) {
-      return Boolean(state.ui.selectedHolidayIds[holiday.holidayKey]);
+    return Object.keys(state.ui.selectedHolidaysByKey).map(function (key) {
+      return state.ui.selectedHolidaysByKey[key];
     });
   }
 
@@ -489,6 +490,7 @@
     state.ui.addPopupOpen = true;
     state.ui.pendingErrors = [];
     state.ui.selectedHolidayIds = {};
+    state.ui.selectedHolidaysByKey = {};
     state.ui.stagedCustomDates = [];
     state.ui.addError = null;
     state.ui.customModalOpen = false;
@@ -502,6 +504,7 @@
     state.ui.addPopupOpen = false;
     state.ui.pendingErrors = [];
     state.ui.selectedHolidayIds = {};
+    state.ui.selectedHolidaysByKey = {};
     state.ui.stagedCustomDates = [];
     state.ui.addError = null;
     state.ui.customModalOpen = false;
@@ -526,14 +529,12 @@
         return;
       }
       state.ui.suggestedHolidays = holidays;
-      state.ui.selectedHolidayIds = {};
       state.ui.addError = null;
     } catch (error) {
       if (seq !== requestSeq) {
         return;
       }
       state.ui.suggestedHolidays = dedupeHolidaysByDate(getFallbackHolidays(state.ui.addCountry, state.ui.addYear));
-      state.ui.selectedHolidayIds = {};
       state.ui.addError = "Could not fetch live holidays. Showing fallback data.";
     } finally {
       if (seq === requestSeq) {
@@ -584,6 +585,7 @@
   function removePendingItem(kind, key) {
     if (kind === "holiday") {
       delete state.ui.selectedHolidayIds[key];
+      delete state.ui.selectedHolidaysByKey[key];
     } else if (kind === "custom") {
       state.ui.stagedCustomDates = state.ui.stagedCustomDates.filter(function (item) {
         return item.stagedId !== key;
@@ -800,7 +802,9 @@
         .join("");
     }
 
-    var selectedCount = Object.keys(state.ui.selectedHolidayIds).length;
+    var selectedCount = state.ui.suggestedHolidays.filter(function (holiday) {
+      return Boolean(state.ui.selectedHolidayIds[holiday.holidayKey]);
+    }).length;
     var allSelected =
       state.ui.suggestedHolidays.length > 0 && selectedCount === state.ui.suggestedHolidays.length;
     var selectAllLabel = allSelected ? "Deselect all" : "Select all";
@@ -937,6 +941,7 @@
         commitPendingAdditions();
       } else if (action === "clear-holiday-selection") {
         state.ui.selectedHolidayIds = {};
+        state.ui.selectedHolidaysByKey = {};
         state.ui.pendingErrors = [];
         render();
       } else if (action === "open-custom-modal") {
@@ -974,13 +979,19 @@
       }
       if (target.id === "select-all-holidays") {
         if (target.checked) {
-          var all = {};
+          var all = Object.assign({}, state.ui.selectedHolidayIds);
+          var byKey = Object.assign({}, state.ui.selectedHolidaysByKey);
           state.ui.suggestedHolidays.forEach(function (holiday) {
             all[holiday.holidayKey] = true;
+            byKey[holiday.holidayKey] = holiday;
           });
           state.ui.selectedHolidayIds = all;
+          state.ui.selectedHolidaysByKey = byKey;
         } else {
-          state.ui.selectedHolidayIds = {};
+          state.ui.suggestedHolidays.forEach(function (holiday) {
+            delete state.ui.selectedHolidayIds[holiday.holidayKey];
+            delete state.ui.selectedHolidaysByKey[holiday.holidayKey];
+          });
         }
         state.ui.pendingErrors = [];
         render();
@@ -990,8 +1001,15 @@
         var key = target.getAttribute("data-holiday-key");
         if (target.checked) {
           state.ui.selectedHolidayIds[key] = true;
+          var selectedHoliday = state.ui.suggestedHolidays.find(function (holiday) {
+            return holiday.holidayKey === key;
+          });
+          if (selectedHoliday) {
+            state.ui.selectedHolidaysByKey[key] = selectedHoliday;
+          }
         } else {
           delete state.ui.selectedHolidayIds[key];
+          delete state.ui.selectedHolidaysByKey[key];
         }
         state.ui.pendingErrors = [];
         render();
