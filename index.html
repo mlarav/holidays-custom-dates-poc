@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Settings - Holidays & Custom Dates (POC)</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="page-header">
+      <h1>Location Settings</h1>
+      <p class="subtitle">Holidays &amp; Custom Dates</p>
+      <button id="debug-toggle" class="ghost-button" type="button" aria-expanded="false">
+        Show debug panel
+      </button>
+    </header>
+
+    <main>
+      <section class="card">
+        <div class="card-header">
+          <h2>Holidays &amp; Custom Dates</h2>
+          <button id="open-add-popup-top" class="primary-button" type="button">
+            Add holiday or custom date
+          </button>
+        </div>
+
+        <div id="main-content"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="sticky-actions" class="sticky-actions hidden"></div>
+  <div id="add-popup-root"></div>
+  <div id="custom-modal-root"></div>
+  <div id="toast-root" aria-live="polite" aria-atomic="true"></div>
+
+  <aside id="debug-panel" class="debug-panel hidden">
+    <h3>State Debug</h3>
+    <pre id="debug-json"></pre>
+  </aside>
+
+  <script src="app.js"></script>
+</body>
+</html>
