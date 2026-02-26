@@ -228,7 +228,7 @@
       closed: true,
       openAt: null,
       closedAt: null,
-      annualRecurrence: false,
+      annualRecurrence: true,
       sourceCountry: country,
       sourceYear: Number(year)
     };
@@ -322,7 +322,7 @@
         closed: true,
         openAt: null,
         closedAt: null,
-        annualRecurrence: false,
+        annualRecurrence: true,
         sourceCountry: h.sourceCountry,
         sourceYear: h.sourceYear
       };
